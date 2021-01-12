@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "249703425041",
+    "firebase_url": "https://rehassistant-8d636.firebaseio.com",
+    "project_id": "rehassistant-8d636",
+    "storage_bucket": "rehassistant-8d636.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:249703425041:android:625f292fb70994a8977db0",
+        "android_client_info": {
+          "package_name": "com.example.RehAssistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "249703425041-qn0tj51t8lb3c2459dkv44jd4ktqpr0o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP_PAxlNO33DKBeTvC0G1EgBf94fUqDZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "249703425041-qn0tj51t8lb3c2459dkv44jd4ktqpr0o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "249703425041-e63ksl67jqoqulva3iidnsrv5rcbjh9c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.RehAssistant"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

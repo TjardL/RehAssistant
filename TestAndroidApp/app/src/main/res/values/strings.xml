@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TestAndroidApp</string>
+    <string name="numberA">txtNumberA</string>
+    <string name="numberB">txtNumberB</string>
+    <string name="bStartAddition">bStart</string>
+    <string name="lblResult">lblResult</string>
+</resources>
