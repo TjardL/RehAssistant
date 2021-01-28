@@ -18,32 +18,6 @@ class TherapistExercisesPage extends StatefulWidget {
       _TherapistExercisesPageState(exercises, exDates);
 }
 
-List<DateTime> presentDates = [
-  DateTime(2020, 6, 1),
-  DateTime(2020, 6, 3),
-  DateTime(2020, 6, 4),
-  DateTime(2020, 6, 5),
-  DateTime(2020, 6, 6),
-  DateTime(2020, 6, 9),
-  DateTime(2020, 6, 10),
-  DateTime(2020, 6, 11),
-  DateTime(2020, 6, 15),
-  DateTime(2020, 6, 11),
-  DateTime(2020, 6, 15),
-];
-List<DateTime> absentDates = [
-  DateTime(2020, 6, 2),
-  DateTime(2020, 6, 7),
-  DateTime(2020, 6, 8),
-  DateTime(2020, 6, 12),
-  DateTime(2020, 6, 13),
-  DateTime(2020, 6, 14),
-  DateTime(2020, 6, 16),
-  DateTime(2020, 6, 17),
-  DateTime(2020, 6, 18),
-  DateTime(2020, 6, 17),
-  DateTime(2020, 6, 18),
-];
 
 class _TherapistExercisesPageState extends State<TherapistExercisesPage> {
   bool visibilityCal = false;
@@ -63,6 +37,7 @@ class _TherapistExercisesPageState extends State<TherapistExercisesPage> {
   void _calcDates() {
     Set<DateTime> tempDate = {};
     // Set<DateTime> successDate = {};
+    print(exDates);
     exDates.forEach((_, list) {
       dateSet.addAll(list);
     });
@@ -133,8 +108,8 @@ class _TherapistExercisesPageState extends State<TherapistExercisesPage> {
 
   var len;
   double cHeight;
-  List<DateTime> listDone;
-  List<DateTime> listTeilweiseDone;
+  List<DateTime> listDone = [];
+  List<DateTime> listTeilweiseDone= [];
   @override
   Widget build(BuildContext context) {
     listDone = dateSet.toList();

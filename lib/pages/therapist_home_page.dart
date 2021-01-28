@@ -143,6 +143,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   getExerciseData(String email) async {
     exercises = [];
+    exDates={};
     await databaseReference
         .collection('User')
         .document('$email')
