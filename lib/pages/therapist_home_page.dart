@@ -34,12 +34,12 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   List<Map<String, String>> diaryItems = [];
   String name;
   String email = "tjard123@gmail.com";
-  int tasksDone;
-  int runStreak;
   PageController controller;
   int getPageIndex = 0;
   Map<String, List<DateTime>> exDates = {};
   List<DateTime> tempDate = [];
+  int exercisesDone = 0;
+  int exercisesDoneMax = 0;
   @override
   void initState() {
     controller = PageController(
@@ -107,15 +107,15 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   }
 
   _whenPageChanges(int pageIndex) {
-    setState(() {
-      this.getPageIndex = pageIndex;
-    });
+    this.getPageIndex = pageIndex;
+    //causes stutter, but without colors dont refresh, solution PROVIDER
+    setState(() {});
   }
 
   //Ab hier queries
   getData(String email) async {
     try {
-     // await _navigateAndDisplaySelectionInit(context);
+      // await _navigateAndDisplaySelectionInit(context);
       List responses = await Future.wait([
         getGeneralData(email),
         getExerciseData(email),
@@ -127,6 +127,30 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     }
   }
 
+  _calcExercisesDone() {
+    Set<DateTime> temp = {};
+    List<DateTime> temp2 = [];
+    exDates.forEach((key, value) {
+      temp.addAll(value);
+      
+      temp.toSet().toList();
+    });
+    temp2 = temp.toList();
+    temp2.sort((a,b) => a.compareTo(b));
+    print(temp);
+    print("EXTIME ${temp.length}");
+    setState(() {
+      if (temp.isEmpty ?? true){
+ exercisesDoneMax = 0;
+      exercisesDone = 0;
+      } else {
+         exercisesDoneMax = temp2[0].difference(DateTime.now()).inDays.abs()+1;
+      exercisesDone = temp.length;
+      }
+     
+    });
+  }
+
   getGeneralData(String email) async {
     await databaseReference
         .collection('User')
@@ -134,8 +158,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         .get()
         .then((DocumentSnapshot ds) {
       name = ds['name'];
-      tasksDone = ds['task_done'];
-      runStreak = ds['runstreak'];
 
       return ds;
     });
@@ -143,7 +165,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   getExerciseData(String email) async {
     exercises = [];
-    exDates={};
+    exDates = {};
     await databaseReference
         .collection('User')
         .document('$email')
@@ -174,7 +196,10 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
             tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
           });
           exDates["${f.documentID}"] = tempDate;
+      
         });
+      _calcExercisesDone();
+        
       });
     });
   }
@@ -296,21 +321,41 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
               ),
               SizedBox(height: 16),
               Text(
-                'Exercises done: 5/10',
+                'Exercises done: $exercisesDone/$exercisesDoneMax',
+                style: TextStyle(fontSize: 18.0),
+              ),
+             
+              /*FutureBuilder(
+                  future: dataFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return Text(
+                        'Exercises done: 1/10',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        'Exercises done: 0/10',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      );
+                    }
+                  }),*/
+                  
+                  
+              SizedBox(height: 16),
+              Text(
+                'Entries in Diary: ${diaryItems.length}',
                 style: TextStyle(
                   fontSize: 18.0,
                 ),
               ),
               SizedBox(height: 16),
               Text(
-                'Entries in Diary: 3',
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Questionnaire filled out: 2',
+                'Questionnaire filled out: ${questionnaireItems.length}',
                 style: TextStyle(
                   fontSize: 18.0,
                 ),
@@ -333,8 +378,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     if (ds != null) {
       setState(() {
         name = ds['name'];
-        tasksDone = ds['task_done'];
-        runStreak = ds['runstreak'];
         email = ds.documentID;
         getData(email);
       });
@@ -351,8 +394,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     );
     if (ds != null) {
       name = ds['name'];
-      tasksDone = ds['task_done'];
-      runStreak = ds['runstreak'];
       email = ds.documentID;
       await getData(email);
     }
