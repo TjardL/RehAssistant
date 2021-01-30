@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:RehAssistant/widgets/exercise_card.dart";
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import "package:RehAssistant/helper/datetime_extension.dart";
 
 class PatientHomePage extends StatefulWidget {
   PatientHomePage({Key key, this.auth, this.userId, this.logoutCallback})
@@ -29,8 +30,7 @@ class PatientHomePage extends StatefulWidget {
 class _PatientHomePageState extends State<PatientHomePage> {
   String name;
   String email;
-  int tasksDone;
-  int runStreak;
+  int runStreak = 0;
   PageController controller;
   int getPageIndex = 0;
   Future dataFuture;
@@ -38,9 +38,10 @@ class _PatientHomePageState extends State<PatientHomePage> {
   List<ExerciseCard> exercises = [];
   Map<String, List<DateTime>> exDates = {};
   List<DateTime> tempDate = [];
+  int exercisesDone = 0;
+  int exercisesDoneMax = 0;
   @override
   void initState() {
-
     print(email);
     controller = PageController();
     // getData("tjard123@gmail.com");
@@ -61,8 +62,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
 
   //Ab hier queries
   getData() async {
-  FirebaseUser user = await widget.auth.getCurrentUser();
-  email = user.email;
+    FirebaseUser user = await widget.auth.getCurrentUser();
+    email = user.email;
 
     try {
       List responses =
@@ -79,8 +80,6 @@ class _PatientHomePageState extends State<PatientHomePage> {
         .get()
         .then((DocumentSnapshot ds) {
       name = ds['name'];
-      tasksDone = ds['task_done']?? 0;
-      runStreak = ds['runstreak']?? 0;
       return ds;
     });
   }
@@ -122,6 +121,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
           });
           exDates["${f.documentID}"] = tempDate;
         });
+
+        _calcExercisesDone();
       });
     });
   }
@@ -165,6 +166,41 @@ class _PatientHomePageState extends State<PatientHomePage> {
           }),
       bottomNavigationBar: _createBottomNavigationBar(),
     );
+  }
+
+  _calcExercisesDone() {
+    Set<DateTime> temp = {};
+    List<DateTime> temp2 = [];
+        runStreak = 0;
+    exDates.forEach((key, value) {
+      temp.addAll(value);
+
+      temp.toSet().toList();
+    });
+    temp2 = temp.toList();
+    temp2.sort((a, b) => a.compareTo(b));
+    print(temp);
+    print("EXTIME ${temp.length}");
+    setState(() {
+      if (temp.isEmpty ?? true) {
+        exercisesDoneMax = 0;
+        exercisesDone = 0;
+        runStreak = 0;
+      } else {
+        //calc runStreak
+        for (int i = temp2.length-1; i >= 0; i--) {
+          print(temp2[i]);
+          if (temp2[i].isSameDate(DateTime.now())) {
+            runStreak++;
+          } else {
+            break;
+          }
+        }
+
+        exercisesDoneMax = temp2[0].difference(DateTime.now()).inDays.abs() + 1;
+        exercisesDone = temp.length;
+      }
+    });
   }
 
   _whenPageChanges(int pageIndex) {
@@ -216,10 +252,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
               ),
               SizedBox(height: 16),
               Text(
-                'Total Tasks done: $tasksDone',
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
+                'Exercises done: $exercisesDone/$exercisesDoneMax days',
+                style: TextStyle(fontSize: 18.0),
               ),
               SizedBox(height: 16),
               Text(

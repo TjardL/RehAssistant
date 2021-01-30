@@ -321,7 +321,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
               ),
               SizedBox(height: 16),
               Text(
-                'Exercises done: $exercisesDone/$exercisesDoneMax',
+                'Exercises done: $exercisesDone/$exercisesDoneMax days',
                 style: TextStyle(fontSize: 18.0),
               ),
              
