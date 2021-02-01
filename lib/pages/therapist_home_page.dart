@@ -400,7 +400,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   }
 
   void addExerciseCallback() {
-    print('moin');
 
     createExerciseDialog(context).then((controller) => addExercise(controller));
   }
@@ -471,6 +470,8 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   Future<List<TextEditingController>> createExerciseDialog(
       BuildContext context) {
+
+    final _formKey = GlobalKey<FormState>();
     TextEditingController nameController = TextEditingController();
     TextEditingController repController = TextEditingController();
     TextEditingController setController = TextEditingController();
@@ -481,39 +482,90 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         builder: (context) {
           return AlertDialog(
             title: Text("Create Exercise"),
-            content: Column(
-              children: <Widget>[
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: 'Name'),
-                ),
-                TextField(
-                  controller: repController,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: 'Reps'),
-                ),
-                TextField(
-                  controller: setController,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: 'Sets'),
-                ),
-                TextField(
-                  controller: freqController,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: 'Frequency / Day'),
-                )
-              ],
+            content: Form(key:_formKey,
+                          child: Column(
+                children: <Widget>[
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Name',
+                      ),
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return 'Value is empty';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: repController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Reps',
+                      ),
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return 'Value is empty';
+                        }
+                        try {
+                          int.parse(text);
+                        } catch (e) {
+                          return "Value is not a number";
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: setController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Sets',
+                      ),
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return 'Value is empty';
+                        }
+                        try {
+                          int.parse(text);
+                        } catch (e) {
+                          return "Value is not a number";
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: freqController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Frequency / Day',
+                      ),
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return 'Value is empty';
+                        }
+                        try {
+                          int.parse(text);
+                        } catch (e) {
+                          return "Value is not a number";
+                        }
+                        return null;
+                      },),
+                ],
+              ),
             ),
             actions: <Widget>[
               MaterialButton(
                 elevation: 5.0,
                 onPressed: () {
-                  controller.add(nameController);
-                  controller.add(repController);
-                  controller.add(setController);
-                  controller.add(freqController);
-                  Navigator.of(context).pop(controller);
+                  if (_formKey.currentState.validate()) {
+                    // TODO submit
+                    controller.add(nameController);
+                    controller.add(repController);
+                    controller.add(setController);
+                    controller.add(freqController);
+                    Navigator.of(context).pop(controller);
+                  }
                 },
                 child: Text('Submit'),
               )
