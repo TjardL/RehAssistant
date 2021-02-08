@@ -12,6 +12,7 @@ import 'package:RehAssistant/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:RehAssistant/widgets/exercise_card.dart";
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:intl/intl.dart';
 import "package:RehAssistant/helper/datetime_extension.dart";
 
@@ -40,6 +41,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
   List<DateTime> tempDate = [];
   int exercisesDone = 0;
   int exercisesDoneMax = 0;
+  bool showDiary = true;
+  bool showQuestionnaire = true;
   @override
   void initState() {
     print(email);
@@ -79,7 +82,25 @@ class _PatientHomePageState extends State<PatientHomePage> {
         .document('$email')
         .get()
         .then((DocumentSnapshot ds) {
-      name = ds['name'];
+
+          if (ds.exists){
+            name = ds['name']??"";
+      
+      if (ds['diary']=="true"){
+        showDiary = true;
+      } else {
+        showDiary = false;
+      }
+      if (ds['questionnaire']=="true"){
+        showQuestionnaire = true;
+      } else {
+        showQuestionnaire = false;
+      }}else{
+
+      name = "this account has not been yet linked to a account created by your therapist. You registered with another e-mail or your therapist has added the wrong e-mail";
+            
+          }
+      
       return ds;
     });
   }
@@ -154,8 +175,9 @@ class _PatientHomePageState extends State<PatientHomePage> {
                     exercises: exercises,
                     exDates: exDates,
                   ),
-                  PatientQuestionnairePage(email: email),
-                  PatientDiaryPage(email: email),
+                  if (showDiary) PatientDiaryPage(email: email),
+                  if (showQuestionnaire) PatientQuestionnairePage(email: email),
+                  
                   //PatientFMSPage(),
                 ],
                 onPageChanged: _whenPageChanges,
@@ -294,9 +316,9 @@ class _PatientHomePageState extends State<PatientHomePage> {
           ),
           title: new Text('Exercises'),
         ),
-        BottomNavigationBarItem(
+        if(showQuestionnaire) BottomNavigationBarItem(
             icon: new Icon(Icons.assignment), title: Text('Questionnaire')),
-        BottomNavigationBarItem(
+        if (showDiary) BottomNavigationBarItem(
             icon: new Icon(Icons.book), title: Text('Diary')),
         //BottomNavigationBarItem(
         //  icon: new Icon(Icons.trending_up), title: Text('Movement Screen')),

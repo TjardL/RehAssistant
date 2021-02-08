@@ -45,10 +45,15 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           userId = await widget.auth.signIn(_email, _password);
         } else {
           userId = await widget.auth.signUp(_email, _password);
+          print('Signed up user: $userId');
+         
+          _isLoginForm=true;
+          validateAndSubmit();
+          
           //widget.auth.sendEmailVerification();
           //_showVerifyEmailSentDialog();
-          print('Signed up user: $userId');
         }
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });
@@ -58,6 +63,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         }
       } catch (e) {
         print('Error: $e');
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
           _errorMessage = e.message;
