@@ -19,8 +19,8 @@ version: 1.0.0+1
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-
-dependencies:
+ 
+dependencies: 
   flutter_calendar_carousel: ^1.4.12
   firebase_auth: ^0.16.1
   firebase_database: ^3.1.6
