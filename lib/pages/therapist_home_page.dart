@@ -6,11 +6,13 @@ import 'package:RehAssistant/pages/therapist_exercise_page.dart';
 import 'package:RehAssistant/pages/therapist_questionnaire_page.dart';
 import 'package:RehAssistant/widgets/exercise_card.dart';
 import 'package:RehAssistant/widgets/small_task_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:RehAssistant/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TherapistHomePage extends StatefulWidget {
   final BaseAuth auth;
@@ -32,8 +34,9 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   List<String> diaryItemsBetter = [];
   List<String> diaryItemsWorse = [];
   List<Map<String, String>> diaryItems = [];
-  String name;
-  String email = "tjard123@gmail.com";
+  String name="none";
+  String email = "";
+  String emailTherapist;
   PageController controller;
   int getPageIndex = 0;
   Map<String, List<DateTime>> exDates = {};
@@ -114,6 +117,11 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   //Ab hier queries
   getData(String email) async {
+    FirebaseUser user = await widget.auth.getCurrentUser();
+    emailTherapist = user.email;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    email = prefs.getString('lastPatient') ?? "";
+  if (email!=""){
     try {
       // await _navigateAndDisplaySelectionInit(context);
       List responses = await Future.wait([
@@ -126,28 +134,29 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
       print(e.toString());
     }
   }
+    
+  }
 
   _calcExercisesDone() {
     Set<DateTime> temp = {};
     List<DateTime> temp2 = [];
     exDates.forEach((key, value) {
       temp.addAll(value);
-      
+
       temp.toSet().toList();
     });
     temp2 = temp.toList();
-    temp2.sort((a,b) => a.compareTo(b));
+    temp2.sort((a, b) => a.compareTo(b));
     print(temp);
     print("EXTIME ${temp.length}");
     setState(() {
-      if (temp.isEmpty ?? true){
- exercisesDoneMax = 0;
-      exercisesDone = 0;
+      if (temp.isEmpty ?? true) {
+        exercisesDoneMax = 0;
+        exercisesDone = 0;
       } else {
-         exercisesDoneMax = temp2[0].difference(DateTime.now()).inDays.abs()+1;
-      exercisesDone = temp.length;
+        exercisesDoneMax = temp2[0].difference(DateTime.now()).inDays.abs() + 1;
+        exercisesDone = temp.length;
       }
-     
     });
   }
 
@@ -196,10 +205,8 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
             tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
           });
           exDates["${f.documentID}"] = tempDate;
-      
         });
-      _calcExercisesDone();
-        
+        _calcExercisesDone();
       });
     });
   }
@@ -324,7 +331,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
                 'Exercises done: $exercisesDone/$exercisesDoneMax days',
                 style: TextStyle(fontSize: 18.0),
               ),
-             
+
               /*FutureBuilder(
                   future: dataFuture,
                   builder: (context, snapshot) {
@@ -344,8 +351,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
                       );
                     }
                   }),*/
-                  
-                  
+
               SizedBox(height: 16),
               Text(
                 'Entries in Diary: ${diaryItems.length}',
@@ -373,12 +379,18 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     final DocumentSnapshot ds = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
-      MaterialPageRoute(builder: (context) => SelectPatientPage()),
+      MaterialPageRoute(
+          builder: (context) =>
+              SelectPatientPage(emailTherapist: emailTherapist)),
     );
     if (ds != null) {
+       SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  await prefs.setString('lastPatient', email);
       setState(() {
         name = ds['name'];
         email = ds.documentID;
+        
         getData(email);
       });
     }
@@ -400,7 +412,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   }
 
   void addExerciseCallback() {
-
     createExerciseDialog(context).then((controller) => addExercise(controller));
   }
 
@@ -460,7 +471,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   _onTapChangePage(int pageIndex) {
     controller.animateToPage(pageIndex,
-        duration: Duration(milliseconds: 400), curve: Curves.bounceInOut);
+        duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   void dispose() {
@@ -470,7 +481,6 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   Future<List<TextEditingController>> createExerciseDialog(
       BuildContext context) {
-
     final _formKey = GlobalKey<FormState>();
     TextEditingController nameController = TextEditingController();
     TextEditingController repController = TextEditingController();
@@ -482,75 +492,77 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         builder: (context) {
           return AlertDialog(
             title: Text("Create Exercise"),
-            content: Form(key:_formKey,
-                          child: Column(
+            content: Form(
+              key: _formKey,
+              child: Column(
                 children: <Widget>[
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Name',
-                      ),
-                      validator: (text) {
-                        if (text == null || text.isEmpty) {
-                          return 'Value is empty';
-                        }
-                        return null;
-                      },
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Name',
                     ),
-                    TextFormField(
-                      controller: repController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Reps',
-                      ),
-                      validator: (text) {
-                        if (text == null || text.isEmpty) {
-                          return 'Value is empty';
-                        }
-                        try {
-                          int.parse(text);
-                        } catch (e) {
-                          return "Value is not a number";
-                        }
-                        return null;
-                      },
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return 'Value is empty';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: repController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Reps',
                     ),
-                    TextFormField(
-                      controller: setController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Sets',
-                      ),
-                      validator: (text) {
-                        if (text == null || text.isEmpty) {
-                          return 'Value is empty';
-                        }
-                        try {
-                          int.parse(text);
-                        } catch (e) {
-                          return "Value is not a number";
-                        }
-                        return null;
-                      },
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return 'Value is empty';
+                      }
+                      try {
+                        int.parse(text);
+                      } catch (e) {
+                        return "Value is not a number";
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: setController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Sets',
                     ),
-                    TextFormField(
-                      controller: freqController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Frequency / Day',
-                      ),
-                      validator: (text) {
-                        if (text == null || text.isEmpty) {
-                          return 'Value is empty';
-                        }
-                        try {
-                          int.parse(text);
-                        } catch (e) {
-                          return "Value is not a number";
-                        }
-                        return null;
-                      },),
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return 'Value is empty';
+                      }
+                      try {
+                        int.parse(text);
+                      } catch (e) {
+                        return "Value is not a number";
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: freqController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Frequency / Day',
+                    ),
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return 'Value is empty';
+                      }
+                      try {
+                        int.parse(text);
+                      } catch (e) {
+                        return "Value is not a number";
+                      }
+                      return null;
+                    },
+                  ),
                 ],
               ),
             ),

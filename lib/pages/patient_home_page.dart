@@ -79,28 +79,28 @@ class _PatientHomePageState extends State<PatientHomePage> {
   getGeneralData(String email) async {
     await databaseReference
         .collection('User')
+        
         .document('$email')
         .get()
         .then((DocumentSnapshot ds) {
+      if (ds.exists) {
+        name = ds['name'] ?? "";
 
-          if (ds.exists){
-            name = ds['name']??"";
-      
-      if (ds['diary']=="true"){
-        showDiary = true;
+        if (ds['diary'] == "true") {
+          showDiary = true;
+        } else {
+          showDiary = false;
+        }
+        if (ds['questionnaire'] == "true") {
+          showQuestionnaire = true;
+        } else {
+          showQuestionnaire = false;
+        }
       } else {
-        showDiary = false;
+        name =
+            "this account has not been yet linked to a account created by your therapist. You registered with another e-mail or your therapist has added the wrong e-mail";
       }
-      if (ds['questionnaire']=="true"){
-        showQuestionnaire = true;
-      } else {
-        showQuestionnaire = false;
-      }}else{
 
-      name = "this account has not been yet linked to a account created by your therapist. You registered with another e-mail or your therapist has added the wrong e-mail";
-            
-          }
-      
       return ds;
     });
   }
@@ -152,6 +152,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text('RehAssistant'),
         actions: <Widget>[
           IconButton(
@@ -177,7 +178,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   ),
                   if (showDiary) PatientDiaryPage(email: email),
                   if (showQuestionnaire) PatientQuestionnairePage(email: email),
-                  
+
                   //PatientFMSPage(),
                 ],
                 onPageChanged: _whenPageChanges,
@@ -193,7 +194,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
   _calcExercisesDone() {
     Set<DateTime> temp = {};
     List<DateTime> temp2 = [];
-        runStreak = 0;
+    runStreak = 0;
     exDates.forEach((key, value) {
       temp.addAll(value);
 
@@ -210,7 +211,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
         runStreak = 0;
       } else {
         //calc runStreak
-        for (int i = temp2.length-1; i >= 0; i--) {
+        for (int i = temp2.length - 1; i >= 0; i--) {
           print(temp2[i]);
           if (temp2[i].isSameDate(DateTime.now())) {
             runStreak++;
@@ -316,10 +317,12 @@ class _PatientHomePageState extends State<PatientHomePage> {
           ),
           title: new Text('Exercises'),
         ),
-        if(showQuestionnaire) BottomNavigationBarItem(
-            icon: new Icon(Icons.assignment), title: Text('Questionnaire')),
-        if (showDiary) BottomNavigationBarItem(
-            icon: new Icon(Icons.book), title: Text('Diary')),
+        if (showQuestionnaire)
+          BottomNavigationBarItem(
+              icon: new Icon(Icons.assignment), title: Text('Questionnaire')),
+        if (showDiary)
+          BottomNavigationBarItem(
+              icon: new Icon(Icons.book), title: Text('Diary')),
         //BottomNavigationBarItem(
         //  icon: new Icon(Icons.trending_up), title: Text('Movement Screen')),
       ],
@@ -330,7 +333,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
 
   _onTapChangePage(int pageIndex) {
     controller.animateToPage(pageIndex,
-        duration: Duration(milliseconds: 400), curve: Curves.bounceInOut);
+        duration: Duration(milliseconds: 400), 
+        curve: Curves.easeIn);
   }
 
   Future<void> scheduleNotificationPeriodically(

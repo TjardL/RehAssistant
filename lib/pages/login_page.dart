@@ -17,7 +17,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   String _email;
   String _password;
   String _errorMessage;
-
+  bool therapist = false;
   bool _isLoginForm;
   bool _isLoading;
 
@@ -44,12 +44,12 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         if (_isLoginForm) {
           userId = await widget.auth.signIn(_email, _password);
         } else {
-          userId = await widget.auth.signUp(_email, _password);
+          userId = await widget.auth.signUp(_email, _password, therapist);
           print('Signed up user: $userId');
-         
-          _isLoginForm=true;
+
+          _isLoginForm = true;
           validateAndSubmit();
-          
+
           //widget.auth.sendEmailVerification();
           //_showVerifyEmailSentDialog();
         }
@@ -128,12 +128,33 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
               showLogo(),
               showEmailInput(),
               showPasswordInput(),
+             if (!_isLoginForm)  showCheckBox(),
               showPrimaryButton(),
               showSecondaryButton(),
               showErrorMessage(),
             ],
           ),
         ));
+  }
+
+  Widget showCheckBox() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Checkbox(
+              value: therapist,
+              onChanged: (val) {
+                setState(() {
+                  therapist = val;
+                });
+                
+              }),
+          Text("I am a therapist"),
+        ],
+      ),
+    );
   }
 
   Widget showErrorMessage() {

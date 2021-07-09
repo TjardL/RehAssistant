@@ -13,8 +13,9 @@ admin.initializeApp();
 // On sign up.
 exports.processSignUp = functions.auth.user().onCreate((user) => {
     // Check if user meets role criteria.
+
     if (user.email &&
-        user.email.endsWith('@physio.de')){
+        (user.email.endsWith('@physio.de')||user.displayName.endsWith("physio"))){
       const customClaims = {
         physio: true,
         accessLevel: 9
@@ -33,6 +34,7 @@ exports.processSignUp = functions.auth.user().onCreate((user) => {
           return error
         });
     }
+    return null;
   });
 
 // admin.auth().setCustomUserClaims(uid, {admin: true}).then(() => {

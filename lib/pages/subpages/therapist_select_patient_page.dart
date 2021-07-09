@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SelectPatientPage extends StatefulWidget {
+  final String emailTherapist;
+
+  const SelectPatientPage({Key key, this.emailTherapist}) : super(key: key);
   @override
   _SelectPatientPageState createState() => _SelectPatientPageState();
 }
@@ -16,7 +19,8 @@ class _SelectPatientPageState extends State<SelectPatientPage> {
     super.initState();
   }
   getDataPatients()async{
-    await Firestore.instance.collection("User").getDocuments().then((QuerySnapshot qs) {
+    print(widget.emailTherapist);
+    await Firestore.instance.collection("User").where("emailTherapist", isEqualTo: "${widget.emailTherapist}").getDocuments().then((QuerySnapshot qs) {
       querySnapshot = qs;
       return qs;
     });

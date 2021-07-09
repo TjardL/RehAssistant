@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:RehAssistant/pages/login_page.dart';
 import 'package:RehAssistant/services/authentication.dart';
 import 'package:RehAssistant/pages/patient_home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -31,7 +32,7 @@ class _RootPageState extends State<RootPage> {
       user != null
           ? user.getIdToken(refresh: true).then((idToken) {
               setState(() {
-                idToken.claims['physio'] == true
+                idToken.claims['name'] == 'physio'
                     ? physio = true
                     : physio = false;
                 if (user != null) {
@@ -58,14 +59,15 @@ class _RootPageState extends State<RootPage> {
 
     // If refresh is set to true, a refresh of the id token is forced.
     final idToken = await user.getIdToken(refresh: true);
-    return idToken.claims['physio'] == true;
+    return idToken.claims['name'] == 'physio';
+    //return idToken.claims['physio'] == true;
   }
 
   void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
       user.getIdToken(refresh: true).then((idToken) {
               setState(() {
-                idToken.claims['physio'] == true
+                idToken.claims['name'] == 'physio'
                     ? physio = true
                     : physio = false;
                 _userId = user.uid.toString();
@@ -78,7 +80,9 @@ class _RootPageState extends State<RootPage> {
     });
   }
 
-  void logoutCallback() {
+  void logoutCallback()async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+     prefs.setString('lastPatient',"");
     setState(() {
       authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = "";
