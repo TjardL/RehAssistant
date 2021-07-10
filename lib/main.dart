@@ -3,13 +3,16 @@ import 'package:RehAssistant/pages/login_page.dart';
 import 'package:RehAssistant/pages/root_page.dart';
 import 'package:RehAssistant/services/authentication.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
+//import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:RehAssistant/services/notification_helper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 NotificationAppLaunchDetails notificationAppLaunchDetails;
 Future<void> main()async {
+  //InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   WidgetsFlutterBinding.ensureInitialized();
   notificationAppLaunchDetails =
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();

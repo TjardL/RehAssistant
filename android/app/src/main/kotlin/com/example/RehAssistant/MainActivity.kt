@@ -1,4 +1,4 @@
-package com.example.RehAssistant
+package com.RehAssistant
 
 import io.flutter.embedding.android.FlutterActivity
 
