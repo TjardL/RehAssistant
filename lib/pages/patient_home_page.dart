@@ -308,23 +308,21 @@ class _PatientHomePageState extends State<PatientHomePage> {
       items: [
         BottomNavigationBarItem(
           icon: new Icon(Icons.home),
-          title: new Text('Home'),
+          label:'Home',
         ),
         BottomNavigationBarItem(
-          icon: new Image(
-            image: AssetImage("images/exercise_icon.png"),
-            height: 22,
-          ),
-          title: new Text('Exercises'),
+          icon: Icon(Icons.fitness_center),
+          // new Image(
+          //   image: Icon(Icons.fitness_center),
+          //   //AssetImage(getPageIndex==1?"images/exercise_icon_blue.png":"images/exercise_icon.png"),
+          //   height: 22,
+          // ),
+          label: 'Exercises',
         ),
-        if (showQuestionnaire)
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.assignment), title: Text('Questionnaire')),
-        if (showDiary)
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.book), title: Text('Diary')),
-        //BottomNavigationBarItem(
-        //  icon: new Icon(Icons.trending_up), title: Text('Movement Screen')),
+        BottomNavigationBarItem(
+            icon: new Icon(Icons.assignment), label:'Questionnaire'),
+        BottomNavigationBarItem(
+            icon: new Icon(Icons.book), label:'Diary'),
       ],
       onTap: _onTapChangePage,
       activeColor: Theme.of(context).primaryColor,

@@ -7,7 +7,7 @@ class SmallTaskButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
                 width: 200,
-                height: 40,
+                height: 48,
                 child: RaisedButton(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(

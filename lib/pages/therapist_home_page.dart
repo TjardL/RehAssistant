@@ -279,7 +279,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Welcome back, Dr.X!',
+                'Welcome back!',
                 style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
@@ -450,19 +450,21 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
       items: [
         BottomNavigationBarItem(
           icon: new Icon(Icons.home),
-          title: new Text('Home'),
+          label:'Home',
         ),
         BottomNavigationBarItem(
-          icon: new Image(
-            image: AssetImage("images/exercise_icon.png"),
-            height: 22,
-          ),
-          title: new Text('Exercises'),
+          icon: Icon(Icons.fitness_center),
+          // new Image(
+          //   image: Icon(Icons.fitness_center),
+          //   //AssetImage(getPageIndex==1?"images/exercise_icon_blue.png":"images/exercise_icon.png"),
+          //   height: 22,
+          // ),
+          label: 'Exercises',
         ),
         BottomNavigationBarItem(
-            icon: new Icon(Icons.assignment), title: Text('Questionnaire')),
+            icon: new Icon(Icons.assignment), label:'Questionnaire'),
         BottomNavigationBarItem(
-            icon: new Icon(Icons.book), title: Text('Diary')),
+            icon: new Icon(Icons.book), label:'Diary'),
       ],
       onTap: _onTapChangePage,
       activeColor: Theme.of(context).primaryColor,
