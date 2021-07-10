@@ -25,7 +25,7 @@ class _PatientQuestionnairePageState extends State<PatientQuestionnairePage> {
   double ratingEnjoyment = 1;
   double ratingMood = 1;
   bool formActive = false;
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
 
   _PatientQuestionnairePageState(this.email);
   @override
@@ -139,10 +139,10 @@ class _PatientQuestionnairePageState extends State<PatientQuestionnairePage> {
                   onPressed: () {
                     databaseReference
                   .collection('User')
-                  .document('$email')
+                  .doc('$email')
                   .collection('Questionnaire')
-                  .document('${DateFormat('d MMM yyyy').format(DateTime.now())}')
-                  .setData({'pain_worst': '$ratingWorst'
+                  .doc('${DateFormat('d MMM yyyy').format(DateTime.now())}')
+                  .set({'pain_worst': '$ratingWorst'
                   , 'pain_least': '$ratingLeast'
                   , 'pain_average': '$ratingAverage'
                   , 'pain_now': '$ratingNow'

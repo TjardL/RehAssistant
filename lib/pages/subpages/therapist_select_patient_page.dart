@@ -12,7 +12,7 @@ class SelectPatientPage extends StatefulWidget {
 class _SelectPatientPageState extends State<SelectPatientPage> {
   Future dataFuture;
   QuerySnapshot querySnapshot;
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   void initState() {
     
     dataFuture = getDataPatients();
@@ -20,7 +20,7 @@ class _SelectPatientPageState extends State<SelectPatientPage> {
   }
   getDataPatients()async{
     print(widget.emailTherapist);
-    await Firestore.instance.collection("User").where("emailTherapist", isEqualTo: "${widget.emailTherapist}").getDocuments().then((QuerySnapshot qs) {
+    await FirebaseFirestore.instance.collection("User").where("emailTherapist", isEqualTo: "${widget.emailTherapist}").get().then((QuerySnapshot qs) {
       querySnapshot = qs;
       return qs;
     });
@@ -29,8 +29,8 @@ class _SelectPatientPageState extends State<SelectPatientPage> {
   }
 
   getPatientItems(QuerySnapshot snapshot) {
-    return snapshot.documents
-        .map((doc) => new ListTile(title: new Text(doc["name"]), subtitle: new Text(doc.documentID),
+    return snapshot.docs
+        .map((doc) => new ListTile(title: new Text(doc["name"]), subtitle: new Text(doc.id),//
         onTap: (){
           Navigator.pop(context, doc);
         },))

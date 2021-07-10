@@ -35,7 +35,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
   PageController controller;
   int getPageIndex = 0;
   Future dataFuture;
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   List<ExerciseCard> exercises = [];
   Map<String, List<DateTime>> exDates = {};
   List<DateTime> tempDate = [];
@@ -45,6 +45,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
   bool showQuestionnaire = true;
   @override
   void initState() {
+    
     print(email);
     controller = PageController();
     // getData("tjard123@gmail.com");
@@ -52,20 +53,20 @@ class _PatientHomePageState extends State<PatientHomePage> {
         time: new DateTime.now().toIso8601String(),
         name:
             'Time to fill out the Diary and complete Exercises you haven´t done today.',
-        repeat: RepeatInterval.Daily);
+        repeat: RepeatInterval.daily);
 
     scheduleNotificationPeriodically(
         flutterLocalNotificationsPlugin,
         '0',
         'Time to fill out the Diary and complete Exercises you haven´t done today.',
-        RepeatInterval.Daily);
+        RepeatInterval.daily);
     super.initState();
     dataFuture = getData();
   }
 
   //Ab hier queries
   getData() async {
-    FirebaseUser user = await widget.auth.getCurrentUser();
+    User user = await widget.auth.getCurrentUser();
     email = user.email;
 
     try {
@@ -80,7 +81,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
     await databaseReference
         .collection('User')
         
-        .document('$email')
+        .doc('$email')
         .get()
         .then((DocumentSnapshot ds) {
       if (ds.exists) {
@@ -113,14 +114,15 @@ class _PatientHomePageState extends State<PatientHomePage> {
     // List<DateTime> tempDate = [];
     await databaseReference
         .collection('User')
-        .document('$email')
+        .doc('$email')
         .collection('Exercises')
-        .getDocuments()
+        .get()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) async {
+      snapshot.docs.forEach((f) async {
         exercises.add(
           ExerciseCard(
-              name: "${f.documentID}",
+              name: "${f.id}", 
+
               sets: f["sets"],
               reps: f["reps"],
               frequency: f["frequency"],
@@ -128,20 +130,20 @@ class _PatientHomePageState extends State<PatientHomePage> {
               email: email),
         );
 
-        await databaseReference
-            .collection('User')
-            .document('$email')
-            .collection('Exercises')
-            .document("${f.documentID}")
-            .collection("timesDone")
-            .getDocuments()
-            .then((QuerySnapshot snapshot) {
-          tempDate = [];
-          snapshot.documents.forEach((g) {
-            tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
-          });
-          exDates["${f.documentID}"] = tempDate;
-        });
+        // await databaseReference
+        //     .collection('User')
+        //     .doc('$email')
+        //     .collection('Exercises')
+        //     .doc("${f.documentID}")
+        //     .collection("timesDone")
+        //     .get()
+        //     .then((QuerySnapshot snapshot) {
+        //   tempDate = [];
+        //   snapshot.docs.forEach((g) {
+        //     tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
+        //   });
+        //   exDates["${f.documentID}"] = tempDate;
+        // });
 
         _calcExercisesDone();
       });
@@ -347,8 +349,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
       icon: 'smile_icon',
     );
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    var platformChannelSpecifics = NotificationDetails();
     //await flutterLocalNotificationsPlugin.periodicallyShow(
     // 0, 'Reminder', body, interval, platformChannelSpecifics);
   }

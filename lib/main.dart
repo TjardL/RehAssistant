@@ -7,6 +7,8 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 
 //import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:RehAssistant/services/notification_helper.dart';
+// Import the firebase_core plugin
+import 'package:firebase_core/firebase_core.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -14,9 +16,10 @@ NotificationAppLaunchDetails notificationAppLaunchDetails;
 Future<void> main()async {
   //InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   WidgetsFlutterBinding.ensureInitialized();
-  notificationAppLaunchDetails =
-      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  await initNotifications(flutterLocalNotificationsPlugin);
+  await Firebase.initializeApp();
+  // notificationAppLaunchDetails =
+  //     await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  // await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   runApp(MyApp());
 }

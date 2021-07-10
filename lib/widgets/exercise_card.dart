@@ -32,7 +32,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
   final frequency;
   var done;
   final email;
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
 
   _ExerciseCardState(this.name, this.sets, this.reps, this.frequency,
       this.done, this.email);
@@ -79,13 +79,13 @@ class _ExerciseCardState extends State<ExerciseCard> {
                           onPressed: () {
                             databaseReference
                                 .collection('User')
-                                .document('$email')
+                                .doc('$email')
                                 .collection('Exercises')
-                                .document('$name')
+                                .doc('$name')
                                 .collection('timesDone')
-                                .document(
+                                .doc(
                                     '${DateFormat('d MMM yyyy').format(DateTime.now())}')
-                                .setData({
+                                .set({
                               'dateDone':
                                   '${DateFormat('d MMM yyyy').format(DateTime.now())}'
                             });

@@ -27,7 +27,7 @@ class TherapistHomePage extends StatefulWidget {
 }
 
 class _TherapistHomePageState extends State<TherapistHomePage> {
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   Future dataFuture;
   List<ExerciseCard> exercises = [];
   List<QuestionnaireItem> questionnaireItems = [];
@@ -117,7 +117,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
   //Ab hier queries
   getData(String email) async {
-    FirebaseUser user = await widget.auth.getCurrentUser();
+    User user = await widget.auth.getCurrentUser();
     emailTherapist = user.email;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     email = prefs.getString('lastPatient') ?? "";
@@ -163,7 +163,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   getGeneralData(String email) async {
     await databaseReference
         .collection('User')
-        .document('$email')
+        .doc('$email')
         .get()
         .then((DocumentSnapshot ds) {
       name = ds['name'];
@@ -177,15 +177,15 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     exDates = {};
     await databaseReference
         .collection('User')
-        .document('$email')
+        .doc('$email')
         .collection('Exercises')
-        .getDocuments()
+        .get()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) async {
+      snapshot.docs.forEach((f) async {
         print('${f.data}}');
         exercises.add(
           ExerciseCard(
-            name: "${f.documentID}",
+            name: "${f.id}",
             sets: f["sets"],
             reps: f["reps"],
             frequency: f["frequency"],
@@ -194,17 +194,17 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         );
         await databaseReference
             .collection('User')
-            .document('$email')
+            .doc('$email')
             .collection('Exercises')
-            .document("${f.documentID}")
+            .doc("${f.id}")
             .collection("timesDone")
-            .getDocuments()
+            .get()
             .then((QuerySnapshot snapshot) {
           tempDate = [];
-          snapshot.documents.forEach((g) {
-            tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
+          snapshot.docs.forEach((g) {
+            tempDate.add(DateFormat('d MMM yyyy').parse(g.id));
           });
-          exDates["${f.documentID}"] = tempDate;
+          exDates["${f.id}"] = tempDate;
         });
         _calcExercisesDone();
       });
@@ -215,16 +215,16 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     questionnaireItems = [];
     await databaseReference
         .collection('User')
-        .document('$email')
+        .doc('$email')
         .collection('Questionnaire')
         .orderBy("date")
-        .getDocuments()
+        .get()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) {
+      snapshot.docs.forEach((f) {
         print('${f.data}}');
         questionnaireItems.add(
           QuestionnaireItem(
-            date: DateFormat('d MMM yyyy').parse(f.documentID),
+            date: DateFormat('d MMM yyyy').parse(f.id),
             interferenceActivity: double.parse(f["interference_activity"]),
             interferenceEnjoyment: double.parse(f["interference_enjoyment"]),
             interferenceMood: double.parse(f["interference_mood"]),
@@ -243,11 +243,11 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     diaryItems = [];
     await databaseReference
         .collection('User')
-        .document('$email')
+        .doc('$email')
         .collection('Diary')
-        .getDocuments()
+        .get()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) {
+      snapshot.docs.forEach((f) {
         diaryItems.add(
             {"better": f["symptoms_better"], "worse": f["symptoms_worse"]});
         // diaryItemsBetter.add(f["symptoms_better"]);
@@ -389,7 +389,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   await prefs.setString('lastPatient', email);
       setState(() {
         name = ds['name'];
-        email = ds.documentID;
+        email = ds.id;
         
         getData(email);
       });
@@ -406,7 +406,9 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     );
     if (ds != null) {
       name = ds['name'];
-      email = ds.documentID;
+      //TODO
+      email = ds.id;
+
       await getData(email);
     }
   }
@@ -429,10 +431,10 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         );
         databaseReference
             .collection('User')
-            .document('$email')
+            .doc('$email')
             .collection('Exercises')
-            .document('${exercises[exercises.length - 1].name}')
-            .setData({
+            .doc('${exercises[exercises.length - 1].name}')
+            .set({
           'reps': exercises[exercises.length - 1].reps,
           'sets': exercises[exercises.length - 1].sets,
           'frequency': exercises[exercises.length - 1].frequency
@@ -573,7 +575,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
                 elevation: 5.0,
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
-                    // TODO submit
+                    //  submit
                     controller.add(nameController);
                     controller.add(repController);
                     controller.add(setController);

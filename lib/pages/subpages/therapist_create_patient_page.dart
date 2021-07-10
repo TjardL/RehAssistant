@@ -11,7 +11,7 @@ class TherapistCreatePatientPage extends StatefulWidget {
 
 class _TherapistCreatePatientPageState
     extends State<TherapistCreatePatientPage> {
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   String name;
   String email;
   List<ExerciseCard> exercises = [];
@@ -152,16 +152,16 @@ class _TherapistCreatePatientPageState
   }
 
   _createUserInDB() {
-    databaseReference.collection('User').document('$email').setData(
+    databaseReference.collection('User').doc('$email').set(
         {'name': '$name', 'diary': '$valDiary', 'questionnaire': '$valQuest'});
 
     for (var exercise in exercises) {
       databaseReference
           .collection('User')
-          .document('$email')
+          .doc('$email')
           .collection('Exercises')
-          .document('${exercise.name}')
-          .setData({
+          .doc('${exercise.name}')
+          .set({
         'reps': exercise.reps,
         'sets': exercise.sets,
         'frequency': exercise.frequency

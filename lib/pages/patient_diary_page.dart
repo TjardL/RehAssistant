@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +15,7 @@ class _PatientDiaryPageState extends State<PatientDiaryPage> {
   final String email;
   String txtWorse;
   String txtBetter;
-  final databaseReference = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
   _PatientDiaryPageState(this.email);
   @override
   Widget build(BuildContext context) {
@@ -56,10 +57,10 @@ class _PatientDiaryPageState extends State<PatientDiaryPage> {
             onPressed: () {
               databaseReference
                   .collection('User')
-                  .document('$email')
+                  .doc('$email')
                   .collection('Diary')
-                  .document('${DateFormat('d MMM yyyy').format(DateTime.now())}')
-                  .setData({'symptoms_worse': '$txtWorse', 'symptoms_better': '$txtBetter'});
+                  .doc('${DateFormat('d MMM yyyy').format(DateTime.now())}')
+                  .set({'symptoms_worse': '$txtWorse', 'symptoms_better': '$txtBetter'});
             },
             color: Theme.of(context).primaryColor,
             child: Text(

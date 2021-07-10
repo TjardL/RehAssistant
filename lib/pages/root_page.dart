@@ -30,9 +30,10 @@ class _RootPageState extends State<RootPage> {
     super.initState();
     widget.auth.getCurrentUser().then((user) {
       user != null
-          ? user.getIdToken(refresh: true).then((idToken) {
+          ? user.getIdToken(true).then((idToken) {
               setState(() {
-                idToken.claims['name'] == 'physio'
+                //idToken.claims['name'] == 'physio'TODO
+                true
                     ? physio = true
                     : physio = false;
                 if (user != null) {
@@ -55,19 +56,22 @@ class _RootPageState extends State<RootPage> {
   }
 
   Future<bool> currentUserClaims() async {
-    final user = await FirebaseAuth.instance.currentUser();
+    final user =  FirebaseAuth.instance.currentUser;
 
     // If refresh is set to true, a refresh of the id token is forced.
-    final idToken = await user.getIdToken(refresh: true);
-    return idToken.claims['name'] == 'physio';
+    final idToken = await user.getIdToken( true);
+    //return idToken.claims['name'] == 'physio';
+    //TODO
+    return true;
     //return idToken.claims['physio'] == true;
   }
 
   void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
-      user.getIdToken(refresh: true).then((idToken) {
+      user.getIdToken(true).then((idToken) {
               setState(() {
-                idToken.claims['name'] == 'physio'
+                //idToken.claims['name'] == 'physio' TODO
+                true
                     ? physio = true
                     : physio = false;
                 _userId = user.uid.toString();
