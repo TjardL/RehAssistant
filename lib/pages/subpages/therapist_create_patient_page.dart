@@ -164,7 +164,8 @@ class _TherapistCreatePatientPageState
           .set({
         'reps': exercise.reps,
         'sets': exercise.sets,
-        'frequency': exercise.frequency
+        'frequency': exercise.frequency,
+        'deleted':'false'
       });
     }
   }

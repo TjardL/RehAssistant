@@ -9,7 +9,7 @@ class ExerciseCard extends StatefulWidget {
   final frequency;
   var done;
   final email;
-
+final void Function(ExerciseCard) doneExerciseCallback;
    ExerciseCard(
       {Key key,
       this.name,
@@ -17,7 +17,7 @@ class ExerciseCard extends StatefulWidget {
       this.reps,
       this.frequency,
       this.done,
-      this.email})
+      this.email, this.doneExerciseCallback})
       : super(key: key);
   @override
   _ExerciseCardState createState() => _ExerciseCardState(this.name, this.sets,
@@ -90,6 +90,7 @@ class _ExerciseCardState extends State<ExerciseCard> {
                                   '${DateFormat('d MMM yyyy').format(DateTime.now())}'
                             });
                             setState(() {
+                              widget.doneExerciseCallback(widget);
                               done = true;
                             });
                           },

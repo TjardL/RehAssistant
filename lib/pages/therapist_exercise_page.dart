@@ -1,3 +1,4 @@
+import 'package:RehAssistant/widgets/exercise_card_therapist.dart';
 import 'package:RehAssistant/widgets/small_task_button.dart';
 import "package:flutter/material.dart";
 import "package:RehAssistant/widgets/exercise_card.dart";
@@ -7,8 +8,9 @@ import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/classes/event_list.dart';
 
 class TherapistExercisesPage extends StatefulWidget {
-  final List<ExerciseCard> exercises;
+  final List<ExerciseCardTherapist> exercises;
   final VoidCallback addExerciseCallback;
+  
   final Map<String, List<DateTime>> exDates;
   const TherapistExercisesPage(
       {Key key, this.exercises, this.addExerciseCallback, this.exDates})
@@ -21,7 +23,7 @@ class TherapistExercisesPage extends StatefulWidget {
 
 class _TherapistExercisesPageState extends State<TherapistExercisesPage> {
   bool visibilityCal = false;
-  final List<ExerciseCard> exercises;
+  final List<ExerciseCardTherapist> exercises;
 
   final Map<String, List<DateTime>> exDates;
   _TherapistExercisesPageState(this.exercises, this.exDates);

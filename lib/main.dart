@@ -1,10 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:RehAssistant/pages/login_page.dart';
 import 'package:RehAssistant/pages/root_page.dart';
 import 'package:RehAssistant/services/authentication.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:provider/provider.dart';
 //import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:RehAssistant/services/notification_helper.dart';
 // Import the firebase_core plugin
@@ -13,8 +15,25 @@ import 'package:firebase_core/firebase_core.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 NotificationAppLaunchDetails notificationAppLaunchDetails;
+
+// Gives the option to override in tests.
+class IAPConnection {
+  static InAppPurchase _instance;
+  static set instance(InAppPurchase value) {
+    _instance = value;
+  }
+
+  static InAppPurchase get instance {
+    _instance ??= InAppPurchase.instance;
+    return _instance;
+  }
+}
+
 Future<void> main()async {
-  //InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  }
+  
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // notificationAppLaunchDetails =
@@ -22,10 +41,15 @@ Future<void> main()async {
   // await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   runApp(MyApp());
+  
+  
 }
+
+
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:RehAssistant/pages/therapist_home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +33,10 @@ class _RootPageState extends State<RootPage> {
     widget.auth.getCurrentUser().then((user) {
       user != null
           ? user.getIdToken(true).then((idToken) {
+            var claims = parseJwt(idToken);
               setState(() {
-                //idToken.claims['name'] == 'physio'TODO
-                true
+
+                claims['physio'] == true
                     ? physio = true
                     : physio = false;
                 if (user != null) {
@@ -54,24 +57,64 @@ class _RootPageState extends State<RootPage> {
             });
     });
   }
+Map<String, dynamic> parseJwt(String token) {
+  final parts = token.split('.');
+  if (parts.length != 3) {
+    throw Exception('invalid token');
+  }
+
+  final payload = _decodeBase64(parts[1]);
+  final payloadMap = json.decode(payload);
+  if (payloadMap is! Map<String, dynamic>) {
+    throw Exception('invalid payload');
+  }
+
+  return payloadMap;
+}
+
+String _decodeBase64(String str) {
+  String output = str.replaceAll('-', '+').replaceAll('_', '/');
+
+  switch (output.length % 4) {
+    case 0:
+      break;
+    case 2:
+      output += '==';
+      break;
+    case 3:
+      output += '=';
+      break;
+    default:
+      throw Exception('Illegal base64url string!"');
+  }
+
+  return utf8.decode(base64Url.decode(output));
+}
 
   Future<bool> currentUserClaims() async {
     final user =  FirebaseAuth.instance.currentUser;
 
     // If refresh is set to true, a refresh of the id token is forced.
     final idToken = await user.getIdToken( true);
-    //return idToken.claims['name'] == 'physio';
-    //TODO
-    return true;
+var claims = parseJwt(idToken);
+
+
+    return claims['physio'] == true;
     //return idToken.claims['physio'] == true;
   }
 
   void loginCallback() {
-    widget.auth.getCurrentUser().then((user) {
+    
+    widget.auth.getCurrentUser().then((user) async{
+
+
+
       user.getIdToken(true).then((idToken) {
+        var claims = parseJwt(idToken);
+
               setState(() {
-                //idToken.claims['name'] == 'physio' TODO
-                true
+                
+                claims['physio']==true
                     ? physio = true
                     : physio = false;
                 _userId = user.uid.toString();

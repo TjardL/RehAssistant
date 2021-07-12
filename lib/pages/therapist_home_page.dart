@@ -5,6 +5,7 @@ import 'package:RehAssistant/pages/therapist_diary_page.dart';
 import 'package:RehAssistant/pages/therapist_exercise_page.dart';
 import 'package:RehAssistant/pages/therapist_questionnaire_page.dart';
 import 'package:RehAssistant/widgets/exercise_card.dart';
+import 'package:RehAssistant/widgets/exercise_card_therapist.dart';
 import 'package:RehAssistant/widgets/small_task_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,7 +30,7 @@ class TherapistHomePage extends StatefulWidget {
 class _TherapistHomePageState extends State<TherapistHomePage> {
   final databaseReference = FirebaseFirestore.instance;
   Future dataFuture;
-  List<ExerciseCard> exercises = [];
+  List<ExerciseCardTherapist> exercises = [];
   List<QuestionnaireItem> questionnaireItems = [];
   List<String> diaryItemsBetter = [];
   List<String> diaryItemsWorse = [];
@@ -49,7 +50,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         // initialPage: 1
         );
 
-    dataFuture = getData(email);
+    dataFuture = getData(email,true);
     super.initState();
     // _navigateAndDisplaySelectionInit(context);
   }
@@ -91,6 +92,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
                     exercises: exercises,
                     exDates: exDates,
                     addExerciseCallback: addExerciseCallback,
+
                   ),
                   TherapistQuestionnairePage(data: questionnaireItems),
                   TherapistDiaryPage(
@@ -116,11 +118,12 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   }
 
   //Ab hier queries
-  getData(String email) async {
+  getData(String email,bool first) async {
     User user = await widget.auth.getCurrentUser();
     emailTherapist = user.email;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    email = prefs.getString('lastPatient') ?? "";
+   if (first) email = prefs.getString('lastPatient') ?? "";
+
   if (email!=""){
     try {
       // await _navigateAndDisplaySelectionInit(context);
@@ -183,15 +186,20 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         .then((QuerySnapshot snapshot) {
       snapshot.docs.forEach((f) async {
         print('${f.data}}');
-        exercises.add(
-          ExerciseCard(
+        if (f["deleted"]!="true"){
+          exercises.add(
+          ExerciseCardTherapist(
             name: "${f.id}",
             sets: f["sets"],
             reps: f["reps"],
             frequency: f["frequency"],
-            done: false,
+            done: false,email: email,
+
+  doneExerciseCallback:doneExerciseCallback
           ),
         );
+        }
+        
         await databaseReference
             .collection('User')
             .doc('$email')
@@ -391,7 +399,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         name = ds['name'];
         email = ds.id;
         
-        getData(email);
+        getData(email,false);
       });
     }
   }
@@ -406,10 +414,10 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     );
     if (ds != null) {
       name = ds['name'];
-      //TODO
+
       email = ds.id;
 
-      await getData(email);
+      await getData(email,false);
     }
   }
 
@@ -417,16 +425,22 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
     createExerciseDialog(context).then((controller) => addExercise(controller));
   }
 
+  void doneExerciseCallback(ExerciseCardTherapist card){
+   exercises[exercises.indexOf(card)].done=true;
+
+
+  }
+
   addExercise(List<TextEditingController> controller) {
     setState(() {
       try {
         exercises.add(
-          ExerciseCard(
+          ExerciseCardTherapist(
             name: controller[0].text.toString(),
             sets: controller[2].text.toString(),
             reps: controller[1].text.toString(),
             frequency: controller[3].text.toString(),
-            done: false,
+            done: false,email: email,
           ),
         );
         databaseReference
@@ -437,7 +451,8 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
             .set({
           'reps': exercises[exercises.length - 1].reps,
           'sets': exercises[exercises.length - 1].sets,
-          'frequency': exercises[exercises.length - 1].frequency
+          'frequency': exercises[exercises.length - 1].frequency,
+          'deleted':'false'
         });
       } catch (e) {
         print(e);

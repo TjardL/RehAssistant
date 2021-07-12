@@ -20,8 +20,12 @@ class _TherapistQuestionnairePageState
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("Questionnaires from the last 6 months are shown."),
+        ),
         Container(
-            height: MediaQuery.of(context).size.height*0.8,
+            height: MediaQuery.of(context).size.height*0.6,
             width: MediaQuery.of(context).size.width,
             child:
                 // SimpleTimeSeriesChart.withSampleData()),
@@ -58,7 +62,7 @@ class SimpleTimeSeriesChart extends StatelessWidget {
       _createData(data),
       // _createSampleData(),
       // Disable animations for image tests.
-      animate: false,
+      animate: true,
     );
   }
 
@@ -116,8 +120,9 @@ class SimpleTimeSeriesChart extends StatelessWidget {
     //  data.sort((a,b) => a.compareTo(b));
     for (var i = 0; i < data.length; i++) {
 
-
-      dataActivity.add(TimePoint(data[i].date, data[i].interferenceActivity));
+      if ((data[i].date.year == DateTime.now().year&&data[i].date.month < DateTime.now().month&&DateTime.now().month-data[i].date.month<7)
+      ||(data[i].date.year == DateTime.now().year&&data[i].date.month > DateTime.now().month&&data[i].date.month-DateTime.now().month>6)){
+dataActivity.add(TimePoint(data[i].date, data[i].interferenceActivity));
       dataEnjoyment.add(TimePoint(data[i].date, data[i].interferenceEnjoyment));
       dataMood.add(TimePoint(data[i].date, data[i].interferenceMood));
       dataSleep.add(TimePoint(data[i].date, data[i].interferenceSleep));
@@ -125,6 +130,8 @@ class SimpleTimeSeriesChart extends StatelessWidget {
       dataLeast.add(TimePoint(data[i].date, data[i].painLeast));
       dataNow.add(TimePoint(data[i].date, data[i].painNow));
       dataWorst.add(TimePoint(data[i].date, data[i].painWorst));
+      }
+      
     }
 
     return [

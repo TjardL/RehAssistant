@@ -105,7 +105,11 @@ class _PatientHomePageState extends State<PatientHomePage> {
       return ds;
     });
   }
+void doneExerciseCallback(ExerciseCard card){
+   exercises[exercises.indexOf(card)].done=true;
 
+
+  }
   getExerciseData(String email) async {
     // defiened as class fields, for clarity purposes as comments here:
     // final databaseReference = Firestore.instance;
@@ -119,7 +123,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
         .get()
         .then((QuerySnapshot snapshot) {
       snapshot.docs.forEach((f) async {
-        exercises.add(
+        if (f["deleted"]!="true"){
+          exercises.add(
           ExerciseCard(
               name: "${f.id}", 
 
@@ -127,23 +132,27 @@ class _PatientHomePageState extends State<PatientHomePage> {
               reps: f["reps"],
               frequency: f["frequency"],
               done: false,
-              email: email),
+              email: email,
+               doneExerciseCallback:doneExerciseCallback),
         );
+        }
 
-        // await databaseReference
-        //     .collection('User')
-        //     .doc('$email')
-        //     .collection('Exercises')
-        //     .doc("${f.documentID}")
-        //     .collection("timesDone")
-        //     .get()
-        //     .then((QuerySnapshot snapshot) {
-        //   tempDate = [];
-        //   snapshot.docs.forEach((g) {
-        //     tempDate.add(DateFormat('d MMM yyyy').parse(g.documentID));
-        //   });
-        //   exDates["${f.documentID}"] = tempDate;
-        // });
+        
+
+        await databaseReference
+            .collection('User')
+            .doc('$email')
+            .collection('Exercises')
+            .doc("${f.id}")
+            .collection("timesDone")
+            .get()
+            .then((QuerySnapshot snapshot) {
+          tempDate = [];
+          snapshot.docs.forEach((g) {
+            tempDate.add(DateFormat('d MMM yyyy').parse(g.id));
+          });
+          exDates["${f.id}"] = tempDate;
+        });
 
         _calcExercisesDone();
       });
