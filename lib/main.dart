@@ -1,3 +1,6 @@
+import 'package:RehAssistant/services/dash_purchases.dart';
+import 'package:RehAssistant/services/firebase_notifier.dart';
+import 'package:RehAssistant/services/iap_repo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:RehAssistant/pages/login_page.dart';
@@ -11,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:RehAssistant/services/notification_helper.dart';
 // Import the firebase_core plugin
 import 'package:firebase_core/firebase_core.dart';
+
+import 'helper/dash_counter.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -29,11 +34,11 @@ class IAPConnection {
   }
 }
 
-Future<void> main()async {
+Future<void> main() async {
   if (defaultTargetPlatform == TargetPlatform.android) {
     InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   }
-  
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // notificationAppLaunchDetails =
@@ -41,37 +46,53 @@ Future<void> main()async {
   // await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   runApp(MyApp());
-  
-  
 }
-
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        //0xff3876C3
-        primarySwatch: MaterialColor(0xff1e49af, color),
-      ),
-      home: new RootPage(auth: new Auth()));
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          //0xff3876C3
+          primarySwatch: MaterialColor(0xff1e49af, color),
+        ),
+        home: MultiProvider(providers: [
+           ChangeNotifierProvider<FirebaseNotifier>(
+            create: (_) => FirebaseNotifier()),
+        ChangeNotifierProvider<DashCounter>(create: (_) => DashCounter()),
+        // ChangeNotifierProvider<DashUpgrades>(
+        //   create: (context) => DashUpgrades(
+        //     context.read<DashCounter>(),
+        //     context.read<FirebaseNotifier>(),
+        //   ),
+        //),
+        
+        ChangeNotifierProvider<IAPRepo>(
+          create: (context) => IAPRepo(context.read<FirebaseNotifier>()),
+        ),
+          ChangeNotifierProvider<DashPurchases>(
+            create: (context) => DashPurchases(
+              context.read<DashCounter>(),
+            ),
+            lazy: false,
+          ),
+        ], child: RootPage(auth: new Auth())));
   }
 }
-Map<int, Color> color =
-{
-50:Color(0xff3876C3),
-100:Color(0xff3876C3),
-200:Color(0xff3876C3),
-300:Color(0xff3876C3),
-400:Color(0xff3876C3),
-500:Color(0xff3876C3),
-600:Color(0xff3876C3),
-700:Color(0xff3876C3),
-800:Color(0xff3876C3),
-900:Color(0xff3876C3),
+
+Map<int, Color> color = {
+  50: Color(0xff3876C3),
+  100: Color(0xff3876C3),
+  200: Color(0xff3876C3),
+  300: Color(0xff3876C3),
+  400: Color(0xff3876C3),
+  500: Color(0xff3876C3),
+  600: Color(0xff3876C3),
+  700: Color(0xff3876C3),
+  800: Color(0xff3876C3),
+  900: Color(0xff3876C3),
 };

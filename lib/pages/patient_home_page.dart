@@ -99,7 +99,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
         }
       } else {
         name =
-            "this account has not been yet linked to a account created by your therapist. You registered with another e-mail or your therapist has added the wrong e-mail";
+            "this account has not been yet linked to an account created by your therapist. You registered with another e-mail or your therapist has added the wrong e-mail";
       }
 
       return ds;

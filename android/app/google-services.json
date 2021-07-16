@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:249703425041:android:625f292fb70994a8977db0",
         "android_client_info": {
-          "package_name": "com.RehAssistant"
+          "package_name": "com.example.RehAssistant"
         }
       },
       "oauth_client": [
@@ -35,7 +35,7 @@
               "client_id": "249703425041-e63ksl67jqoqulva3iidnsrv5rcbjh9c.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.RehAssistant"
+                "bundle_id": "com.example.RehAssistant"
               }
             }
           ]

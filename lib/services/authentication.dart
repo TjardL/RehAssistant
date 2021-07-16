@@ -60,6 +60,7 @@ if (physio) {
   Future<void> sendEmailVerification() async {
     User user =  _firebaseAuth.currentUser;
     user.sendEmailVerification();
+    print("email sent");
   }
 
   Future<bool> isEmailVerified() async {

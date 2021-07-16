@@ -1,9 +1,12 @@
+import 'package:RehAssistant/helper/dash_counter.dart';
 import 'package:RehAssistant/model/questionnaire_item.dart';
+import 'package:RehAssistant/pages/purchase_page.dart';
 import 'package:RehAssistant/pages/subpages/therapist_create_patient_page.dart';
 import 'package:RehAssistant/pages/subpages/therapist_select_patient_page.dart';
 import 'package:RehAssistant/pages/therapist_diary_page.dart';
 import 'package:RehAssistant/pages/therapist_exercise_page.dart';
 import 'package:RehAssistant/pages/therapist_questionnaire_page.dart';
+import 'package:RehAssistant/services/dash_purchases.dart';
 import 'package:RehAssistant/widgets/exercise_card.dart';
 import 'package:RehAssistant/widgets/exercise_card_therapist.dart';
 import 'package:RehAssistant/widgets/small_task_button.dart';
@@ -13,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:RehAssistant/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TherapistHomePage extends StatefulWidget {
@@ -35,7 +39,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   List<String> diaryItemsBetter = [];
   List<String> diaryItemsWorse = [];
   List<Map<String, String>> diaryItems = [];
-  String name="none";
+  String name = "none";
   String email = "";
   String emailTherapist;
   PageController controller;
@@ -50,7 +54,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         // initialPage: 1
         );
 
-    dataFuture = getData(email,true);
+    dataFuture = getData(email, true);
     super.initState();
     // _navigateAndDisplaySelectionInit(context);
   }
@@ -68,47 +72,47 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('RehAssistant'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () {
-              widget.auth.signOut();
-              signOut();
-            },
-          )
-        ],
-      ),
-      body: FutureBuilder(
-          future: dataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return PageView(
-                controller: controller,
-                children: <Widget>[
-                  _buildTherapistHomePage(),
-                  TherapistExercisesPage(
-                    exercises: exercises,
-                    exDates: exDates,
-                    addExerciseCallback: addExerciseCallback,
-
-                  ),
-                  TherapistQuestionnairePage(data: questionnaireItems),
-                  TherapistDiaryPage(
-                    diaryItems: diaryItems,
-                  ),
-                  // PatientQuestionnairePage(),
-                  // PatientDiaryPage()
-                ],
-                onPageChanged: _whenPageChanges,
-              );
-            } else {
-              return CircularProgressIndicator();
-            }
-          }),
-      bottomNavigationBar: _createBottomNavigationBar(),
-    );
+        appBar: AppBar(
+    title: Text('RehAssistant'),
+    actions: <Widget>[
+      IconButton(
+        icon: Icon(Icons.exit_to_app),
+        onPressed: () {
+          widget.auth.signOut();
+          signOut();
+        },
+      )
+    ],
+        ),
+        body: FutureBuilder(
+      future: dataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return PageView(
+            controller: controller,
+            children: <Widget>[
+              _buildTherapistHomePage(),
+              TherapistExercisesPage(
+                exercises: exercises,
+                exDates: exDates,
+                addExerciseCallback: addExerciseCallback,
+              ),
+              TherapistQuestionnairePage(data: questionnaireItems),
+              TherapistDiaryPage(
+                diaryItems: diaryItems,
+              ),
+              PurchasePage(),
+              // PatientQuestionnairePage(),
+              // PatientDiaryPage()
+            ],
+            onPageChanged: _whenPageChanges,
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      }),
+        bottomNavigationBar: _createBottomNavigationBar(),
+      );
   }
 
   _whenPageChanges(int pageIndex) {
@@ -118,26 +122,25 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
   }
 
   //Ab hier queries
-  getData(String email,bool first) async {
+  getData(String email, bool first) async {
     User user = await widget.auth.getCurrentUser();
     emailTherapist = user.email;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-   if (first) email = prefs.getString('lastPatient') ?? "";
+    if (first) email = prefs.getString('lastPatient') ?? "";
 
-  if (email!=""){
-    try {
-      // await _navigateAndDisplaySelectionInit(context);
-      List responses = await Future.wait([
-        getGeneralData(email),
-        getExerciseData(email),
-        getQuestionnaireData(email),
-        getDiaryData(email)
-      ]);
-    } catch (e) {
-      print(e.toString());
+    if (email != "") {
+      try {
+        // await _navigateAndDisplaySelectionInit(context);
+        List responses = await Future.wait([
+          getGeneralData(email),
+          getExerciseData(email),
+          getQuestionnaireData(email),
+          getDiaryData(email)
+        ]);
+      } catch (e) {
+        print(e.toString());
+      }
     }
-  }
-    
   }
 
   _calcExercisesDone() {
@@ -186,20 +189,19 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
         .then((QuerySnapshot snapshot) {
       snapshot.docs.forEach((f) async {
         print('${f.data}}');
-        if (f["deleted"]!="true"){
+        if (f["deleted"] != "true") {
           exercises.add(
-          ExerciseCardTherapist(
-            name: "${f.id}",
-            sets: f["sets"],
-            reps: f["reps"],
-            frequency: f["frequency"],
-            done: false,email: email,
-
-  doneExerciseCallback:doneExerciseCallback
-          ),
-        );
+            ExerciseCardTherapist(
+                name: "${f.id}",
+                sets: f["sets"],
+                reps: f["reps"],
+                frequency: f["frequency"],
+                done: false,
+                email: email,
+                doneExerciseCallback: doneExerciseCallback),
+          );
         }
-        
+
         await databaseReference
             .collection('User')
             .doc('$email')
@@ -316,8 +318,17 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
               ),
               SizedBox(height: 16),
               SmallTaskButton("Add Exercise", () {
-                createExerciseDialog(context)
-                    .then((controller) => {addExercise(controller)});
+                if (name != "none") {
+                  createExerciseDialog(context)
+                      .then((controller) => {addExercise(controller)});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      'No patient is selected.',
+                    ),
+                    backgroundColor: Theme.of(context).accentColor,
+                  ));
+                }
               }),
               SizedBox(height: 16),
               SmallTaskButton("Change Tasks", () {}),
@@ -392,14 +403,14 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
               SelectPatientPage(emailTherapist: emailTherapist)),
     );
     if (ds != null) {
-       SharedPreferences prefs = await SharedPreferences.getInstance();
-  
-  await prefs.setString('lastPatient', email);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('lastPatient', email);
       setState(() {
         name = ds['name'];
         email = ds.id;
-        
-        getData(email,false);
+
+        getData(email, false);
       });
     }
   }
@@ -417,18 +428,26 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
 
       email = ds.id;
 
-      await getData(email,false);
+      await getData(email, false);
     }
   }
 
   void addExerciseCallback() {
-    createExerciseDialog(context).then((controller) => addExercise(controller));
+    if (name != "none") {
+      createExerciseDialog(context)
+          .then((controller) => addExercise(controller));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'No patient is selected.',
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ));
+    }
   }
 
-  void doneExerciseCallback(ExerciseCardTherapist card){
-   exercises[exercises.indexOf(card)].done=true;
-
-
+  void doneExerciseCallback(ExerciseCardTherapist card) {
+    exercises[exercises.indexOf(card)].done = true;
   }
 
   addExercise(List<TextEditingController> controller) {
@@ -440,7 +459,8 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
             sets: controller[2].text.toString(),
             reps: controller[1].text.toString(),
             frequency: controller[3].text.toString(),
-            done: false,email: email,
+            done: false,
+            email: email,
           ),
         );
         databaseReference
@@ -452,7 +472,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
           'reps': exercises[exercises.length - 1].reps,
           'sets': exercises[exercises.length - 1].sets,
           'frequency': exercises[exercises.length - 1].frequency,
-          'deleted':'false'
+          'deleted': 'false'
         });
       } catch (e) {
         print(e);
@@ -467,7 +487,7 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
       items: [
         BottomNavigationBarItem(
           icon: new Icon(Icons.home),
-          label:'Home',
+          label: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.fitness_center),
@@ -479,9 +499,9 @@ class _TherapistHomePageState extends State<TherapistHomePage> {
           label: 'Exercises',
         ),
         BottomNavigationBarItem(
-            icon: new Icon(Icons.assignment), label:'Questionnaire'),
-        BottomNavigationBarItem(
-            icon: new Icon(Icons.book), label:'Diary'),
+            icon: new Icon(Icons.assignment), label: 'Questionnaire'),
+        BottomNavigationBarItem(icon: new Icon(Icons.book), label: 'Diary'),
+        BottomNavigationBarItem(icon: new Icon(Icons.book), label: 'Purchase'),
       ],
       onTap: _onTapChangePage,
       activeColor: Theme.of(context).primaryColor,
